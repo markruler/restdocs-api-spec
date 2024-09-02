@@ -39,6 +39,7 @@ data class RequestModel(
     val pathParameters: List<ParameterDescriptor>,
     val queryParameters: List<ParameterDescriptor>,
     val formParameters: List<ParameterDescriptor>,
+    val requestParts: List<ParameterDescriptor>,
     val requestFields: List<FieldDescriptor>,
     val example: String? = null,
     val schema: Schema? = null

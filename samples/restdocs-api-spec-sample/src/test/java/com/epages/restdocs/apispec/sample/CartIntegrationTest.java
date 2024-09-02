@@ -1,13 +1,27 @@
 package com.epages.restdocs.apispec.sample;
 
+import com.epages.restdocs.apispec.ResourceSnippetParameters;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.data.rest.webmvc.RestMediaTypes.HAL_JSON;
 import static org.springframework.data.rest.webmvc.RestMediaTypes.TEXT_URI_LIST;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.fileUpload;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -15,14 +29,6 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.subsecti
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import com.epages.restdocs.apispec.ResourceSnippetParameters;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
@@ -54,6 +60,27 @@ public class CartIntegrationTest extends BaseIntegrationTest {
                 .andExpect(status().isOk())
                 .andDo(document("cart-add-product",
                         resource("Add products to a cart")))
+        ;
+    }
+
+
+    @Test
+    public void should_add_invoice_to_cart() throws Exception {
+        whenCartInvoiceIsCreated();
+
+        resultActions
+                .andExpect(status().isOk())
+                .andDo(document("cart-add-invoice",
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .description("Add invoice to a cart")
+                                        .requestHeaders(
+                                                headerWithName("Content-Type").description("The content type of the file.")
+                                        )
+//                                        .pathParameters(
+//                                                parameterWithName("id").description("the cart id"))
+                                        .build()
+                        )))
         ;
     }
 
@@ -113,6 +140,16 @@ public class CartIntegrationTest extends BaseIntegrationTest {
 
         String location = resultActions.andReturn().getResponse().getHeader(LOCATION);
         cartId = location.substring(location.lastIndexOf("/") + 1);
+    }
+
+    private void whenCartInvoiceIsCreated() throws Exception {
+        MockMultipartFile mockPdf =
+                new MockMultipartFile("file", "test.pdf", MediaType.APPLICATION_PDF_VALUE, "test".getBytes());
+
+        resultActions = mockMvc.perform(
+                fileUpload("/carts/{id}/invoice", "someId")
+                        .file("invoice", mockPdf.getBytes())
+        );
     }
 
     private void whenCartIsRetrieved() throws Exception {

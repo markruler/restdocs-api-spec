@@ -23,6 +23,7 @@ import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
+import org.springframework.restdocs.request.RequestDocumentation.partWithName
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.ResultActions
 import org.springframework.web.bind.annotation.PathVariable
@@ -114,6 +115,9 @@ fun buildFullResourceSnippet(): ResourceSnippet {
             .deprecated(true)
             .privateResource(true)
             .requestFields(fieldDescriptors())
+            .requestParts(
+                partWithName("file").description("the file")
+            )
             .responseFields(fieldDescriptors().and(fieldWithPath("id").description("id")))
             .requestHeaders(
                 headerWithName("X-Custom-Header").description("A custom header"),

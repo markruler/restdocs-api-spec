@@ -9,6 +9,7 @@ import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.request.ParameterDescriptor
+import org.springframework.restdocs.request.RequestPartDescriptor
 import org.springframework.restdocs.snippet.AbstractDescriptor
 import org.springframework.restdocs.snippet.Attributes
 import org.springframework.restdocs.snippet.IgnorableDescriptor
@@ -23,6 +24,7 @@ data class ResourceSnippetParameters @JvmOverloads constructor(
     val requestSchema: Schema? = null,
     val responseSchema: Schema? = null,
     val requestFields: List<FieldDescriptor> = emptyList(),
+    val requestParts: List<RequestPartDescriptor> = emptyList(),
     val responseFields: List<FieldDescriptor> = emptyList(),
     val links: List<LinkDescriptor> = emptyList(),
     val pathParameters: List<ParameterDescriptorWithType> = emptyList(),
@@ -195,6 +197,8 @@ abstract class ResourceSnippetDetails {
 class ResourceSnippetParametersBuilder : ResourceSnippetDetails() {
     var requestFields: List<FieldDescriptor> = emptyList()
         private set
+    var requestParts: List<RequestPartDescriptor> = emptyList()
+        private set
     var responseFields: List<FieldDescriptor> = emptyList()
         private set
     var links: List<LinkDescriptor> = emptyList()
@@ -216,6 +220,9 @@ class ResourceSnippetParametersBuilder : ResourceSnippetDetails() {
     override fun responseSchema(responseSchema: Schema?) = apply { this.responseSchema = responseSchema }
     override fun privateResource(privateResource: Boolean) = apply { this.privateResource = privateResource }
     override fun deprecated(deprecated: Boolean) = apply { this.deprecated = deprecated }
+
+    fun requestParts(vararg requestParts: RequestPartDescriptor) = requestParts(requestParts.toList())
+    fun requestParts(requestParts: List<RequestPartDescriptor>) = apply { this.requestParts = requestParts }
 
     fun requestFields(vararg requestFields: FieldDescriptor) = requestFields(requestFields.toList())
     fun requestFields(requestFields: List<FieldDescriptor>) = apply { this.requestFields = requestFields }
@@ -278,6 +285,7 @@ class ResourceSnippetParametersBuilder : ResourceSnippetDetails() {
         requestSchema,
         responseSchema,
         requestFields,
+        requestParts,
         responseFields,
         links,
         pathParameters,

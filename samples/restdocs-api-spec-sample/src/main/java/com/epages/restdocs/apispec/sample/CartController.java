@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+import org.springframework.web.multipart.MultipartFile;
 
 import static org.springframework.data.rest.webmvc.RestMediaTypes.TEXT_URI_LIST_VALUE;
 
@@ -34,6 +35,13 @@ public class CartController {
         Cart cart = cartRepository.save(new Cart());
         return ResponseEntity.created(entityLinks.linkForSingleResource(cart).toUri())
                 .body(cartResourceResourceAssembler.toResource(cart));
+    }
+
+    @PostMapping("/{carId}/invoice")
+    public ResponseEntity<Void> sendInvoice(
+            @RequestPart("invoice") MultipartFile invoice
+    ) {
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{cartId}")
